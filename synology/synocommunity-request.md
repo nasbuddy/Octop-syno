@@ -10,7 +10,7 @@ A proposed native Synology DSM distribution of Octop, an open-source, self-hoste
 
 ### Website
 
-[Octop-syno](https://github.com/hhuee/Octop-syno/tree/codex/synology-native), a Synology adaptation of [upstream Octop](https://github.com/TencentCloud/Octop).
+[Octop-syno](https://github.com/nasbuddy/Octop-syno/tree/codex/synology-native), a Synology adaptation of [upstream Octop](https://github.com/TencentCloud/Octop).
 
 ### Documentation
 
@@ -18,11 +18,11 @@ A proposed native Synology DSM distribution of Octop, an open-source, self-hoste
 
 ### Build/Installation Documentation
 
-[Synology SPK build and installation guide](https://github.com/hhuee/Octop-syno/blob/codex/synology-native/synology/README.md) and [build script](https://github.com/hhuee/Octop-syno/blob/codex/synology-native/synology/build-spk.sh). The guide is in Chinese; the main requirements are summarized below. General development instructions are in the [upstream build guide](https://github.com/TencentCloud/Octop/blob/main/CONTRIBUTING.md).
+[Synology SPK build and installation guide](https://github.com/nasbuddy/Octop-syno/blob/codex/synology-native/synology/README.md) and [build script](https://github.com/nasbuddy/Octop-syno/blob/codex/synology-native/synology/build-spk.sh). The guide is in Chinese; the main requirements are summarized below. General development instructions are in the [upstream build guide](https://github.com/TencentCloud/Octop/blob/main/CONTRIBUTING.md).
 
 ### Source Code
 
-[hhuee/Octop-syno, branch codex/synology-native](https://github.com/hhuee/Octop-syno/tree/codex/synology-native), containing the application, Synology packaging, DSM authentication integration, and tests. The application and packaging snapshot under review is [0281cf35](https://github.com/hhuee/Octop-syno/commit/0281cf35c0fdb3b3723f3c2db436e0bd0479ecab), based on upstream commit `4632d0f4` and application version `1.0.2`. This is an initial package request, before submission of a `spksrc` implementation; it is an independent adaptation, not an upstream-endorsed Synology release.
+[nasbuddy/Octop-syno, branch codex/synology-native](https://github.com/nasbuddy/Octop-syno/tree/codex/synology-native), containing the application, Synology packaging, DSM authentication integration, and tests. The application and packaging snapshot under review is [0281cf35](https://github.com/nasbuddy/Octop-syno/commit/0281cf35c0fdb3b3723f3c2db436e0bd0479ecab), based on upstream commit `4632d0f4` and application version `1.0.2`. This is an initial package request, before submission of a `spksrc` implementation; it is an independent adaptation, not an upstream-endorsed Synology release.
 
 ### First Public Release / Development
 
@@ -45,7 +45,7 @@ MIT
 
 ### Other License
 
-The application license is [MIT](https://github.com/hhuee/Octop-syno/blob/codex/synology-native/LICENSE), inherited from [upstream Octop](https://github.com/TencentCloud/Octop/blob/main/LICENSE). The bundled runtime and dependencies have their own licenses; their redistribution notices still need review as part of packaging.
+The application license is [MIT](https://github.com/nasbuddy/Octop-syno/blob/codex/synology-native/LICENSE), inherited from [upstream Octop](https://github.com/TencentCloud/Octop/blob/main/LICENSE). The bundled runtime and dependencies have their own licenses; their redistribution notices still need review as part of packaging.
 
 ## Motivation and naming
 

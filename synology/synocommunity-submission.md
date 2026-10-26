@@ -1,6 +1,6 @@
 # Octop-syno 收录申请资料
 
-提交日期：2026-10-26。已由 GitHub 账号 `hhuee` 提交 [Package Request #7658](https://github.com/SynoCommunity/spksrc/issues/7658)，标题为 `[Package Request] Octop-syno`。当前为收录申请，等待社区评审；尚未提交 `spksrc` 实现 PR，也未发布 SPK Release。
+提交日期：2026-10-26。已由 GitHub 账号 `nasbuddy` 提交 [Package Request #7658](https://github.com/SynoCommunity/spksrc/issues/7658)，标题为 `[Package Request] Octop-syno`。当前为收录申请，等待社区评审；尚未提交 `spksrc` 实现 PR，也未发布 SPK Release。
 
 ## 使用方式
 
@@ -16,9 +16,9 @@
 | 项目               | 地址或说明                                                                                                       |
 | ------------------ | ---------------------------------------------------------------------------------------------------------------- |
 | 申请名称           | `Octop-syno`；现有 SPK 内部标识仍为 `Octop`                                                                      |
-| 群晖适配源码       | [hhuee/Octop-syno 的 codex/synology-native 分支](https://github.com/hhuee/Octop-syno/tree/codex/synology-native) |
-| 群晖构建／安装说明 | [synology/README.md](https://github.com/hhuee/Octop-syno/blob/codex/synology-native/synology/README.md)          |
-| 构建脚本           | [synology/build-spk.sh](https://github.com/hhuee/Octop-syno/blob/codex/synology-native/synology/build-spk.sh)    |
+| 群晖适配源码       | [nasbuddy/Octop-syno 的 codex/synology-native 分支](https://github.com/nasbuddy/Octop-syno/tree/codex/synology-native) |
+| 群晖构建／安装说明 | [synology/README.md](https://github.com/nasbuddy/Octop-syno/blob/codex/synology-native/synology/README.md)          |
+| 构建脚本           | [synology/build-spk.sh](https://github.com/nasbuddy/Octop-syno/blob/codex/synology-native/synology/build-spk.sh)    |
 | 上游项目           | [TencentCloud/Octop](https://github.com/TencentCloud/Octop)                                                      |
 | 上游使用文档       | [README](https://github.com/TencentCloud/Octop/blob/main/README.md)                                              |
 | 上游开发文档       | [CONTRIBUTING.md](https://github.com/TencentCloud/Octop/blob/main/CONTRIBUTING.md)                               |

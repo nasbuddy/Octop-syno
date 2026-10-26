@@ -1,6 +1,6 @@
 # Octop-syno — 群晖原生 SPK
 
-源码：[hhuee/Octop-syno 的 codex/synology-native 分支](https://github.com/hhuee/Octop-syno/tree/codex/synology-native)。`Octop-syno` 是发行名称，现有 SPK 内部标识仍为 `Octop`，数据路径保持一致。
+源码：[nasbuddy/Octop-syno 的 codex/synology-native 分支](https://github.com/nasbuddy/Octop-syno/tree/codex/synology-native)。`Octop-syno` 是发行名称，现有 SPK 内部标识仍为 `Octop`，数据路径保持一致。
 
 面向 **DS220+ / DSM 7.2 系列（含 7.2.1、7.2.2）** 的原生套件，自带 CPython 3.12、锁定的 Python 依赖和 Web 控制台。NAS 运行时不需要 Docker、Container Manager 或另装 Python。
 
