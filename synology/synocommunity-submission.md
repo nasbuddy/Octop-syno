@@ -16,9 +16,9 @@
 | 项目               | 地址或说明                                                                                                       |
 | ------------------ | ---------------------------------------------------------------------------------------------------------------- |
 | 申请名称           | `Octop-syno`；现有 SPK 内部标识仍为 `Octop`                                                                      |
-| 群晖适配源码       | [nasbuddy/Octop-syno 的 codex/synology-native 分支](https://github.com/nasbuddy/Octop-syno/tree/codex/synology-native) |
-| 群晖构建／安装说明 | [synology/README.md](https://github.com/nasbuddy/Octop-syno/blob/codex/synology-native/synology/README.md)          |
-| 构建脚本           | [synology/build-spk.sh](https://github.com/nasbuddy/Octop-syno/blob/codex/synology-native/synology/build-spk.sh)    |
+| 群晖适配源码       | [nasbuddy/Octop-syno 的 feat/synology-native 分支](https://github.com/nasbuddy/Octop-syno/tree/feat/synology-native) |
+| 群晖构建／安装说明 | [synology/README.md](https://github.com/nasbuddy/Octop-syno/blob/feat/synology-native/synology/README.md)          |
+| 构建脚本           | [synology/build-spk.sh](https://github.com/nasbuddy/Octop-syno/blob/feat/synology-native/synology/build-spk.sh)    |
 | 上游项目           | [TencentCloud/Octop](https://github.com/TencentCloud/Octop)                                                      |
 | 上游使用文档       | [README](https://github.com/TencentCloud/Octop/blob/main/README.md)                                              |
 | 上游开发文档       | [CONTRIBUTING.md](https://github.com/TencentCloud/Octop/blob/main/CONTRIBUTING.md)                               |
