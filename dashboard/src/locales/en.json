@@ -4071,6 +4071,7 @@
     "darkDesc": "Deep and focused"
   },
   "auth": {
+    "returnToDsm": "Return to DSM",
     "loginTitle": "Welcome Back",
     "loginDescription": "Enter your password to continue",
     "passwordPlaceholder": "Enter password",
@@ -5668,6 +5669,11 @@
     "expertsRequired": "This page needs an expert"
   },
   "login": {
+    "dsm": {
+      "title": "DSM sign-in required",
+      "description": "Sign in to DSM, then reopen Octop. A DSM administrator must open Octop first after installation. Disabled Octop accounts cannot sign in.",
+      "retry": "Try again"
+    },
     "title": "Sign in",
     "subtitle": "An intelligent partner that understands you, helps you, and grows with you",
     "username": "Username or email",

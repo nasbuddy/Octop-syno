@@ -11,6 +11,8 @@ import {
   useDesktopChrome,
 } from "./hooks/useDesktopChrome";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { APP_BASE_PATH, DSM_NATIVE } from "./api/config";
+import DsmLogin from "./pages/Login/DsmLogin";
 import { useTranslation } from "react-i18next";
 import MainLayout from "./layouts/MainLayout";
 import LoginPage from "./pages/Login";
@@ -132,7 +134,10 @@ function ThemedApp() {
             <DesktopWindowControls chrome={desktopChrome} />
           ) : null}
           <Routes>
-            <Route path="/login" element={<LoginPage />} />
+            <Route
+              path="/login"
+              element={DSM_NATIVE ? <DsmLogin /> : <LoginPage />}
+            />
             <Route path="/login/oidc/complete" element={<OidcComplete />} />
             <Route path="/setup" element={<SetupPage />} />
             <Route path="/invite" element={<InvitePage />} />
@@ -162,7 +167,7 @@ function App() {
     // `useTransitions` off: with router transitions on, React keeps the old
     // page mounted while a lazy route chunk downloads and never renders the
     // Suspense fallback, so a nav click looks like it did nothing.
-    <BrowserRouter useTransitions={false}>
+    <BrowserRouter basename={APP_BASE_PATH || "/"} useTransitions={false}>
       <GlobalErrorBoundary>
         <GlobalStyle />
         <ThemeProvider>

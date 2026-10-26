@@ -172,6 +172,7 @@ export default defineConfig(({ mode }) => {
       suppressViteDisconnectReload(),
       react(),
       VitePWA({
+        disable: env.VITE_DSM_AUTH === "1",
         // prompt: new SW stays in waiting until the user accepts via
         // PwaUpdatePrompt → applyUpdate() → SKIP_WAITING. Avoid autoUpdate
         // skipWaiting + page reload loops (especially Safari/WebKit).

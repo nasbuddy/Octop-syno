@@ -711,6 +711,8 @@ class OctopServer:
             logger.exception("applying plugin channel kinds failed")
 
     def _emit_wizard_password(self, *, user_count: int) -> None:
+        if os.environ.get("OCTOP_DSM_AUTH") == "1":
+            return
         config = self.config
         if config is None:
             return

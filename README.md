@@ -1,3 +1,5 @@
+> **Octop-syno** provides the native Synology DSM adaptation in this fork. See the [SPK build and installation guide](synology/README.md) and [SynoCommunity package request](synology/synocommunity-request.md). The upstream application is [TencentCloud/Octop](https://github.com/TencentCloud/Octop).
+
 <p align="center">
   <img src="docs/assets/readme-banner.png" alt="Octop Banner" width="600" />
 </p>
@@ -233,6 +235,8 @@ See [scripts/README.md](scripts/README.md) for all install options (`--version`,
 
 See [desktop/README.md](desktop/README.md) for the desktop shell and [fnos/README.md](fnos/README.md) for the FnOS packaging guide.
 
+For Synology DS220+ / DSM 7.2 series (including 7.2.1 and 7.2.2), the [native SPK package](synology/README.md) (Chinese guide) bundles Python and runs without Docker.
+
 **Alternative — PyPI** (if you already manage Python yourself):
 
 ```bash
@@ -348,6 +352,7 @@ See [`.env.example`](.env.example) for the full list.
 | Local script | Windows | `scripts\install.bat` or `install.ps1` |
 | PyPI | Any | `pip install octop` (optional extras such as `local-embedding`) |
 | Docker | Any | `docker/docker-compose.yml`; China mirror: `docker/docker-compose.cn.yml` |
+| Synology NAS | DS220+ / DSM 7.2 series | [Native SPK package (no Docker)](synology/README.md) |
 
 All install scripts provision an isolated environment at `~/.octop/venv` and a `~/.octop/bin/octop` wrapper — they do not touch system Python.
 

@@ -230,6 +230,10 @@
             sessionStorage.setItem(KEY, "1");
           } catch (e) {}
           recovering = true;
+          if ("%BASE_URL%" === "/octop/") {
+            location.reload();
+            return;
+          }
           var reload = function () {
             location.reload();
           };

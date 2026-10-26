@@ -4071,6 +4071,7 @@
     "darkDesc": "深邃沉稳"
   },
   "auth": {
+    "returnToDsm": "返回 DSM",
     "loginTitle": "欢迎回来",
     "loginDescription": "请输入密码以继续访问",
     "passwordPlaceholder": "请输入密码",
@@ -5668,6 +5669,11 @@
     "expertsRequired": "此页需要专家"
   },
   "login": {
+    "dsm": {
+      "title": "需要 DSM 登录",
+      "description": "请登录 DSM 后重新打开 Octop。首次安装需由 DSM 管理员先打开；已被停用的 Octop 账号无法登录。",
+      "retry": "重新尝试"
+    },
     "title": "登录",
     "subtitle": "懂你、帮你、陪你成长的智能伙伴",
     "username": "用户名或邮箱",

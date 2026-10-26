@@ -1,0 +1,4 @@
+#!/bin/sh
+set -eu
+OCTOP_PACKAGE="${SYNOPKG_PKGDEST:-/var/packages/Octop/target}"
+exec "$OCTOP_PACKAGE/runtime/bin/python3" "$OCTOP_PACKAGE/service.py" "$@"

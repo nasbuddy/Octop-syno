@@ -170,11 +170,14 @@ async def create_download_link(
 )
 async def open_download_link(
     token: str,
+    request: Request,
     server: Any = Depends(get_server),
 ) -> FileResponse:
     """Serve a file created by ``POST /downloads/link``. The token is the only credential."""
     link = await asyncio.to_thread(_download_links.get, token)
     if link is None or server.user_manager.get_by_id(link.owner_id) is None:
+        raise OctopError(ErrorCode.NOT_FOUND, "download link expired or not found")
+    if getattr(request.state, "dsm_session", None) and request.state.octop_user.id != link.owner_id:
         raise OctopError(ErrorCode.NOT_FOUND, "download link expired or not found")
     return FileResponse(
         link.path,

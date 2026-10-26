@@ -1,3 +1,4 @@
+import { getAppUrl } from "../../../api/config";
 // dashboard/src/pages/Experts/components/CreateFromExpertDrawer.tsx
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -643,7 +644,10 @@ export default function CreateFromExpertDrawer({
           showIcon
           message={t("experts.noModelsWarning")}
           action={
-            <a href="/admin/models" style={{ whiteSpace: "nowrap" }}>
+            <a
+              href={getAppUrl("/admin/models")}
+              style={{ whiteSpace: "nowrap" }}
+            >
               {t("experts.goToAdmin")}
             </a>
           }

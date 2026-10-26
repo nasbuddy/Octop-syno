@@ -42,6 +42,7 @@ _JWT_EXEMPT_EXACT = (
     "/api/health",
     "/api/auth/login",
     "/api/auth/captcha",
+    "/api/auth/dsm/session",
     "/api/auth/oidc/status",
     "/api/auth/oidc/start",
     "/api/auth/oidc/callback",
@@ -139,6 +140,7 @@ def maybe_sliding_renew_token(server: OctopServer, token: str, user: User) -> st
         uname=user.username,
         role=user.role,
         ttl_seconds=ttl,
+        dsm_session=payload.get("dsm_session"),
     )
 
 

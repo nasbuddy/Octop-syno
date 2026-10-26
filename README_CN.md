@@ -1,3 +1,5 @@
+> **Octop-syno** 是此 Fork 的群晖 DSM 原生适配。请参阅 [SPK 构建与安装说明](synology/README.md)和 [SynoCommunity 收录申请](synology/synocommunity-request.md)。上游应用为 [TencentCloud/Octop](https://github.com/TencentCloud/Octop)。
+
 <p align="center">
   <img src="docs/assets/readme-banner-zh.png" alt="Octop Banner" width="600" />
 </p>
@@ -235,6 +237,8 @@ curl -fsSL https://finnie-1258344699.cos.ap-guangzhou.myqcloud.com/octop/install
 
 桌面客户端说明见 [desktop/README.md](desktop/README.md)，飞牛打包指南见 [fnos/README.md](fnos/README.md)。
 
+群晖 DS220+ / DSM 7.2 系列（含 7.2.1、7.2.2）可使用[原生 SPK 套件](synology/README.md)，自带 Python，运行时无需 Docker。
+
 **备选 — PyPI**（若你已自行管理 Python 环境）：
 
 ```bash
@@ -349,6 +353,7 @@ docker run -d \
 | 本地脚本 | Windows | `scripts\install.bat` 或 `install.ps1` |
 | PyPI | 全平台 | `pip install octop`（可选 extras 如 `local-embedding`） |
 | Docker | 全平台 | `docker/docker-compose.yml`；国内镜像 `docker/docker-compose.cn.yml` |
+| 群晖 NAS | DS220+ / DSM 7.2 系列 | [原生 SPK 套件（无需 Docker）](synology/README.md) |
 
 所有安装脚本均在 `~/.octop/venv` 创建隔离环境，并通过 `~/.octop/bin/octop` 包装 CLI，不会影响系统 Python。
 

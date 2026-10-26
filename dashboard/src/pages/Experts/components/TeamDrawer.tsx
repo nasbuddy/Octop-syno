@@ -1,3 +1,4 @@
+import { getAppUrl } from "../../../api/config";
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Alert, Collapse, Drawer, Form, Input, Select, Spin } from "antd";
@@ -212,7 +213,10 @@ export default function TeamDrawer({
           showIcon
           message={t("experts.noModelsWarning")}
           action={
-            <a href="/admin/models" style={{ whiteSpace: "nowrap" }}>
+            <a
+              href={getAppUrl("/admin/models")}
+              style={{ whiteSpace: "nowrap" }}
+            >
               {t("experts.goToAdmin")}
             </a>
           }

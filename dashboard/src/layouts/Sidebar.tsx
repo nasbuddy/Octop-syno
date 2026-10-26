@@ -1,3 +1,4 @@
+import { getAppUrl } from "../api/config";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
@@ -472,7 +473,10 @@ export default function Sidebar({
     // When navigating to /chat, preserve the current chatId in the URL so the
     // Chat component is not remounted (key stays the same) and the user stays
     // on their most recent conversation instead of seeing a blank welcome screen.
-    if (path === "/chat" && window.location.pathname.startsWith("/chat/")) {
+    if (
+      path === "/chat" &&
+      window.location.pathname.startsWith(getAppUrl("/chat/"))
+    ) {
       if (isMobile) onToggle();
       return;
     }
@@ -509,7 +513,7 @@ export default function Sidebar({
   const brandInner = (
     <>
       <img
-        src={isRailCollapsed ? "/pwa-192.png" : wordmarkSrc}
+        src={getAppUrl(isRailCollapsed ? "/pwa-192.png" : wordmarkSrc)}
         alt="Octop"
         style={{
           height: isRailCollapsed ? 32 : isMobile ? 38 : 36,

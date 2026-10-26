@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import logging
+import os
 from collections.abc import Sequence
 from dataclasses import dataclass
 from pathlib import Path
@@ -108,6 +109,7 @@ def build_app(server: OctopServer) -> FastAPI:
 
     app = FastAPI(
         title="Octop API",
+        root_path="/octop" if os.environ.get("OCTOP_DSM_AUTH") == "1" else "",
         version="0.1.0",
         description=API_DESCRIPTION,
         openapi_url="/api/openapi.json" if enable_api_docs else None,
@@ -136,6 +138,12 @@ def build_app(server: OctopServer) -> FastAPI:
     install_bridge_proxy(app, server)
     install_jwt_auth(app, server)
     install_setup_lockdown(app, server)
+    if os.environ.get("OCTOP_DSM_AUTH") == "1":
+        from octop.api.middleware.dsm_auth import DsmAuthMiddleware
+        from octop.api.routers.auth_dsm import router as dsm_router
+
+        app.include_router(dsm_router, prefix="/api/auth", tags=["auth"])
+        app.add_middleware(DsmAuthMiddleware, server=server)
 
     if server.app_runtime is not None and server.app_runtime.bridge_manager is not None:
         from octop.api.bridge_peer import prepare_peer_dashboard_turn
@@ -311,7 +319,11 @@ def build_app(server: OctopServer) -> FastAPI:
         @app.get("/api/docs", include_in_schema=False)
         async def api_docs() -> HTMLResponse:
             return get_scalar_api_reference(
-                openapi_url=app.openapi_url,
+                openapi_url=(
+                    f"/octop{app.openapi_url}"
+                    if os.environ.get("OCTOP_DSM_AUTH") == "1"
+                    else app.openapi_url
+                ),
                 title="Octop API",
             )
 

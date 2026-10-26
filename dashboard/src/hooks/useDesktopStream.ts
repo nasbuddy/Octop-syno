@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { getAuthToken } from "../api/request";
+import { DSM_NATIVE, getWsUrl } from "../api/config";
 
 export type DesktopStreamState =
   | "idle"
@@ -37,8 +38,10 @@ const MAX_RECONNECT_ATTEMPTS = 5;
 const RECONNECT_BASE_MS = 1000;
 
 function buildWsUrl(): string {
-  const protocol = window.location.protocol === "https:" ? "wss" : "ws";
-  return `${protocol}://${window.location.host}/api/desktop-stream/ws`;
+  const query = DSM_NATIVE
+    ? `?token=${encodeURIComponent(getAuthToken())}`
+    : "";
+  return getWsUrl("/desktop-stream/ws") + query;
 }
 
 function closeSocket(ws: WebSocket): Promise<void> {

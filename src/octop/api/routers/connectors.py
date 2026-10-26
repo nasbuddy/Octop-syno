@@ -235,7 +235,7 @@ async def _begin_oauth_flow(
 
     state = secrets.token_urlsafe(24)
     state_id = new_ulid()
-    base = resolve_public_base(request)
+    base = resolve_public_base(request) + request.scope.get("root_path", "")
     redirect_uri = f"{base}/api/connectors/oauth/callback"
     if oauth_target_requires_https(target) and _is_public_http_uri(redirect_uri):
         label = str(target.get("kind") or target.get("server_name") or "MCP")
@@ -1519,7 +1519,11 @@ async def oauth_callback(
             status_code=400,
         )
 
-    base = resolve_public_base(request)
+    if getattr(request.state, "dsm_session", None) and request.state.octop_user.id != row.user_id:
+        delete_oauth_ctx(server.services.settings_repo, row.state_id)
+        return _oauth_callback_html(request, "callback_invalid_state", status_code=400)
+
+    base = resolve_public_base(request) + request.scope.get("root_path", "")
     redirect_uri = f"{base}/api/connectors/oauth/callback"
 
     try:
@@ -1594,7 +1598,9 @@ async def oauth_callback(
     success_message = tr("connector.oauth.callback_success", locale)
     # JSON-encode for the JS string literal (quotes/backslashes/newlines) and
     # escape "<" so a stored "</script>" cannot terminate the script element.
-    target = json.dumps(redirect_target).replace("<", "\\u003c")
+    target = json.dumps(request.scope.get("root_path", "") + redirect_target).replace(
+        "<", "\\u003c"
+    )
     html = f"""<!DOCTYPE html><html><body>
 <script>
   if (window.opener) {{

@@ -142,6 +142,29 @@ function applySetupFlags(status: AuthStatus): AuthStatus {
 }
 
 export const authApi = {
+  getDsmSession: async (): Promise<{
+    access_token: string;
+    user_id: number;
+  }> => {
+    const response = await fetch("/webman/login.cgi", {
+      credentials: "same-origin",
+      cache: "no-store",
+      redirect: "error",
+    });
+    const login = await response.json();
+    if (
+      !response.ok ||
+      login.success !== true ||
+      typeof login.SynoToken !== "string" ||
+      !login.SynoToken
+    ) {
+      throw new Error("DSM session is unavailable");
+    }
+    return request("/auth/dsm/session", {
+      cache: "no-store",
+      headers: { "X-Syno-Token": login.SynoToken },
+    });
+  },
   /** Probe whether the initial admin has been created. */
   getAuthStatus: async (): Promise<AuthStatus> => {
     if (statusInFlight) return statusInFlight;
