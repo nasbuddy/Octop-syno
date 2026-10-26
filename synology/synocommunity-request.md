@@ -1,18 +1,51 @@
 # [Package Request] Octop-syno
 
-**Name:** Octop-syno
+### Software Name
 
-**Description:** A proposed native Synology DSM distribution of Octop, an open-source, self-hosted AI assistant platform with multiple users, multiple agents, a web dashboard, scheduled tasks, and configurable LLM providers. The NAS runtime does not require Docker or Container Manager. Users configure their own LLM provider; the package does not include a language model.
+Octop-syno
 
-**Website:** [Octop-syno](https://github.com/hhuee/Octop-syno/tree/codex/synology-native), a Synology adaptation of [upstream Octop](https://github.com/TencentCloud/Octop).
+### Brief Description
 
-**Software documentation:** [Octop README and quick start](https://github.com/TencentCloud/Octop/blob/main/README.md)
+A proposed native Synology DSM distribution of Octop, an open-source, self-hosted AI assistant platform with multiple users, multiple agents, a web dashboard, scheduled tasks, and configurable LLM providers. The NAS runtime does not require Docker or Container Manager. Users configure their own LLM provider; the package does not include a language model.
 
-**Build/Installation documentation:** [Synology SPK build and installation guide](https://github.com/hhuee/Octop-syno/blob/codex/synology-native/synology/README.md) and [build script](https://github.com/hhuee/Octop-syno/blob/codex/synology-native/synology/build-spk.sh). The guide is in Chinese; the main requirements are summarized below. General development instructions are in the [upstream build guide](https://github.com/TencentCloud/Octop/blob/main/CONTRIBUTING.md).
+### Website
 
-**Source code:** [hhuee/Octop-syno, branch codex/synology-native](https://github.com/hhuee/Octop-syno/tree/codex/synology-native), containing the application, Synology packaging, DSM authentication integration, and tests. The upstream project is [TencentCloud/Octop](https://github.com/TencentCloud/Octop). This is an initial package request, before submission of a `spksrc` implementation.
+[Octop-syno](https://github.com/hhuee/Octop-syno/tree/codex/synology-native), a Synology adaptation of [upstream Octop](https://github.com/TencentCloud/Octop).
 
-**License:** Upstream Octop uses the [MIT License](https://github.com/TencentCloud/Octop/blob/main/LICENSE). The bundled runtime and dependencies have their own licenses; their redistribution notices still need review as part of packaging.
+### Documentation
+
+[Octop README and quick start](https://github.com/TencentCloud/Octop/blob/main/README.md)
+
+### Build/Installation Documentation
+
+[Synology SPK build and installation guide](https://github.com/hhuee/Octop-syno/blob/codex/synology-native/synology/README.md) and [build script](https://github.com/hhuee/Octop-syno/blob/codex/synology-native/synology/build-spk.sh). The guide is in Chinese; the main requirements are summarized below. General development instructions are in the [upstream build guide](https://github.com/TencentCloud/Octop/blob/main/CONTRIBUTING.md).
+
+### Source Code
+
+[hhuee/Octop-syno, branch codex/synology-native](https://github.com/hhuee/Octop-syno/tree/codex/synology-native), containing the application, Synology packaging, DSM authentication integration, and tests. The application and packaging snapshot under review is [0281cf35](https://github.com/hhuee/Octop-syno/commit/0281cf35c0fdb3b3723f3c2db436e0bd0479ecab), based on upstream commit `4632d0f4` and application version `1.0.2`. This is an initial package request, before submission of a `spksrc` implementation; it is an independent adaptation, not an upstream-endorsed Synology release.
+
+### First Public Release / Development
+
+- Upstream Octop: the earliest commit currently visible in its public repository is dated [2026-07-09](https://github.com/TencentCloud/Octop/commit/748d998cf2c5b4724faa8d0f13be7abcea9b9a42). This is repository-history evidence, not independent verification of when the repository first became public. The first 1.0 release, [v1.0.0](https://github.com/TencentCloud/Octop/releases/tag/v1.0.0), was published on 2026-09-14.
+- Octop-syno adaptation: first published in this public fork on 2026-10-26. It is a prototype and has no published stable SPK release yet.
+
+### Upstream Project Maturity
+
+Upstream has several months of visible development history and releases including [v1.0.0](https://github.com/TencentCloud/Octop/releases/tag/v1.0.0) (2026-09-14), [v1.0.1](https://github.com/TencentCloud/Octop/releases/tag/v1.0.1) (2026-09-19), and [v1.0.2](https://github.com/TencentCloud/Octop/releases/tag/v1.0.2) (2026-10-18). Recent maintenance includes a [chat-model fix merged on 2026-10-26](https://github.com/TencentCloud/Octop/pull/2407) and an [upstream collaborator response to a PDF issue](https://github.com/TencentCloud/Octop/issues/2412#issuecomment-6414804547) on the same day.
+
+The Synology adaptation is much newer. Its source, tests, build script, and limited prototype device results are available for feasibility review. The published application snapshot passed local `make all PYTEST_JOBS=4` checks (5,109 passed, 35 skipped), along with frontend typechecking/build and nine focused DSM frontend tests on 2026-10-26. These are local checks, not SynoCommunity CI or complete NAS acceptance. This request starts a packaging discussion; it does not claim the package is ready for release.
+
+### Ongoing Maintenance and Support
+
+A dedicated long-term SynoCommunity package maintainer is not yet confirmed, and no maintenance SLA or release schedule is promised. This request provides the prototype implementation and test evidence for review. The proposed responsibility split is to handle DSM packaging, service lifecycle, and DSM authentication issues in the adaptation, and report reproducible application bugs to upstream. Agreeing on a maintainer, update workflow, dependency/license review, and supported DSM/architecture test coverage remains necessary before a release-ready PR.
+
+### Open Source License
+
+MIT
+
+### Other License
+
+The application license is [MIT](https://github.com/hhuee/Octop-syno/blob/codex/synology-native/LICENSE), inherited from [upstream Octop](https://github.com/TencentCloud/Octop/blob/main/LICENSE). The bundled runtime and dependencies have their own licenses; their redistribution notices still need review as part of packaging.
 
 ## Motivation and naming
 

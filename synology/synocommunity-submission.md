@@ -1,15 +1,15 @@
 # Octop-syno 收录申请资料
 
-准备日期：2026-10-26。本文件整理公开源码地址和申请材料；尚未向 SynoCommunity 提交 Issue 或 PR，也未发布 SPK Release。
+提交日期：2026-10-26。已由 GitHub 账号 `hhuee` 提交 [Package Request #7658](https://github.com/SynoCommunity/spksrc/issues/7658)，标题为 `[Package Request] Octop-syno`。当前为收录申请，等待社区评审；尚未提交 `spksrc` 实现 PR，也未发布 SPK Release。
 
 ## 使用方式
 
 - 目标仓库：[SynoCommunity/spksrc](https://github.com/SynoCommunity/spksrc)。
 - 申请标题：`[Package Request] Octop-syno`。
-- 英文正文：[synocommunity-request.md](synocommunity-request.md)。复制时将第一行作为标题，其余内容作为正文。
+- 英文正文：[synocommunity-request.md](synocommunity-request.md)，对应已提交申请的正文。
 - 申请类型：初步 Package Request，后续还需提交 `spksrc` 打包实现。
 
-英文稿包含 Name、Description、Website、Software documentation、Build/Installation documentation、Source code、License 七项，并说明 DSM 登录、运行权限和验证边界。依据：[官方申请要求](https://github.com/SynoCommunity/spksrc/blob/master/CONTRIBUTING.md#package-requests)。
+英文稿已按当前 [Package Request 模板](https://github.com/SynoCommunity/spksrc/blob/master/.github/ISSUE_TEMPLATE/package-request.yml) 补齐 11 项：软件名称、简介、网站、使用文档、构建／安装文档、源码、首次公开／开发时间、上游成熟度、持续维护和支持、开源许可证及其他许可说明。并说明 DSM 登录、运行权限和验证边界。申请流程依据：[官方申请要求](https://github.com/SynoCommunity/spksrc/blob/master/CONTRIBUTING.md#package-requests)。
 
 ## 源码和文档
 
@@ -26,7 +26,9 @@
 
 本分支基于上游提交 `4632d0f4` 整理群晖原生支持、DSM 认证、子路径和图片修复，打包修订号为 `0005`。原工作区的聊天历史发送关联改动不在本分支中；该部分的 `0006` 修订说明也未带入。没有因此重命名现有 NAS 套件或改动其数据路径。
 
-2026-10-26，GitHub 搜索 API 查询 `repo:SynoCommunity/spksrc Octop in:title,body` 返回 0 条，`incomplete_results=false`。这次检索覆盖 Issue 和 PR，提交当天应复查。
+2026-10-26 提交前，GitHub 搜索 API 查询 `repo:SynoCommunity/spksrc Octop in:title,body` 返回 0 条，`incomplete_results=false`，检索覆盖 Issue 和 PR。随后创建申请 #7658；后续补充材料应更新该申请，避免重复提交。
+
+申请明确区分上游 Octop 的历史与新公开的 Synology 适配：上游仓库可见首个提交为 2026-07-09，`v1.0.0`、`v1.0.1`、`v1.0.2` 分别于 2026-09-14、2026-09-19、2026-10-18 发布；适配分支于 2026-10-26 公开，尚无稳定 SPK Release。申请中的源码基线为 `0281cf35`，并引用当前可访问的上游修复与问题回复作为维护活动证据，没有声称上游官方认可该发行版。
 
 ## 已有本地产物记录
 
