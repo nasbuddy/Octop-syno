@@ -5,6 +5,7 @@ import "./pwa-prompt";
 
 import { createRoot } from "react-dom/client";
 import App from "./App.tsx";
+import { DSM_NATIVE } from "./api/config";
 import { initI18n } from "./i18n";
 import {
   clearChunkReloadFlag,
@@ -74,6 +75,6 @@ void initI18n()
 // Register SW as early as possible so beforeinstallprompt can fire before the
 // user clicks the header install button (deferring to "load" caused a race).
 // In DEV this only clears stale workers — it never registers (see sw-register).
-if (typeof window !== "undefined") {
+if (typeof window !== "undefined" && !DSM_NATIVE) {
   void import("./sw-register").then(({ registerSW }) => registerSW());
 }

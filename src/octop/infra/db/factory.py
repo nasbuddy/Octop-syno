@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 from pathlib import Path
 
 from octop.config import OctopConfig, database_env_configured
@@ -24,7 +25,7 @@ def should_defer_control_plane_db(config: OctopConfig, paths: PathLayout) -> boo
     ``OCTOP_DATABASE_*`` / PostgreSQL configuration. Password verification and
     early wizard steps then run without a pool.
     """
-    if config.database.is_postgresql:
+    if os.environ.get("OCTOP_DSM_AUTH") == "1" or config.database.is_postgresql:
         return False
     if database_env_configured():
         return False

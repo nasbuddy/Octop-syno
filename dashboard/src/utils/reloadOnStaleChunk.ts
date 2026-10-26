@@ -47,6 +47,11 @@ export function isChunkLoadError(error: unknown): boolean {
 
 /** Drop SW + Cache Storage so the next load is not served a stale shell. */
 export async function bustServiceWorkerAndReload(): Promise<void> {
+  // DSM shares this origin with other packages; leave their workers and caches alone.
+  if (import.meta.env.VITE_DSM_AUTH === "1") {
+    window.location.reload();
+    return;
+  }
   try {
     if (typeof navigator !== "undefined" && "serviceWorker" in navigator) {
       const regs = await navigator.serviceWorker.getRegistrations();

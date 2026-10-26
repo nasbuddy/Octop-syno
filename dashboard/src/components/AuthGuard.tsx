@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Spin } from "antd";
-import { clearAuthToken, getAuthToken } from "../api/request";
+import { clearAuthToken, getAuthToken, setAuthToken } from "../api/request";
+import { DSM_NATIVE, getAppUrl } from "../api/config";
 import { authApi, type OctopUser } from "../api/modules/auth";
 import { applyUserLocale } from "../utils/locale";
 import { isNetworkFetchError } from "../utils/networkError";
@@ -51,6 +52,14 @@ export default function AuthGuard({ children }: AuthGuardProps) {
     const check = async () => {
       setOffline(false);
       try {
+        if (DSM_NATIVE) {
+          const session = await authApi.getDsmSession();
+          if (cancelled) return;
+          const previousUser = sessionStorage.getItem("octop:dsm:user");
+          if (previousUser !== String(session.user_id)) clearAuthToken();
+          sessionStorage.setItem("octop:dsm:user", String(session.user_id));
+          setAuthToken(session.access_token, false);
+        }
         const status = await authApi.getAuthStatus();
 
         // No admin yet → push to setup wizard; drop any leftover JWT from a
@@ -97,6 +106,11 @@ export default function AuthGuard({ children }: AuthGuardProps) {
         }
       } catch (err) {
         if (cancelled) return;
+        if (DSM_NATIVE && !isNetworkFetchError(err)) {
+          clearAuthToken();
+          navigateRef.current("/login", { replace: true });
+          return;
+        }
         // Backend unreachable (or setup/status otherwise failed) — do not
         // mount MainLayout with a null user (that produced a blank white
         // shell with no recovery action).
@@ -112,6 +126,34 @@ export default function AuthGuard({ children }: AuthGuardProps) {
       cancelled = true;
     };
   }, [retryKey]);
+
+  useEffect(() => {
+    if (!DSM_NATIVE || !authed) return;
+    let pending = false;
+    let cancelled = false;
+    const check = async () => {
+      if (pending || cancelled) return;
+      pending = true;
+      try {
+        const me = await authApi.me();
+        if (!cancelled) setUser(me);
+      } catch (err) {
+        if (!cancelled && !isNetworkFetchError(err)) {
+          clearAuthToken();
+          window.location.replace(getAppUrl("/login"));
+        }
+      } finally {
+        pending = false;
+      }
+    };
+    const timer = window.setInterval(check, 5000);
+    window.addEventListener("focus", check);
+    return () => {
+      cancelled = true;
+      window.clearInterval(timer);
+      window.removeEventListener("focus", check);
+    };
+  }, [authed]);
 
   if (offline) {
     return (

@@ -1,5 +1,6 @@
 import { useLayoutEffect, useRef, useState } from "react";
 import { requestBlob } from "../api/request";
+import { getAppUrl } from "../api/config";
 import {
   asImageBlob,
   isDataUrl,
@@ -110,7 +111,7 @@ export function useAuthImageSrc(
   setSrc: React.Dispatch<React.SetStateAction<string>>;
 } {
   const needsFetch = needsAuthBlobFetch(url) || isDataUrl(url);
-  const [src, setSrc] = useState(() => (needsFetch ? "" : url));
+  const [src, setSrc] = useState(() => (needsFetch ? "" : getAppUrl(url)));
   const [loadState, setLoadState] = useState<AuthImageLoadState>(() =>
     needsFetch ? "loading" : "ready",
   );
@@ -120,7 +121,7 @@ export function useAuthImageSrc(
     if (!needsAuthBlobFetch(url) && !isDataUrl(url)) {
       releaseHeld(heldRef.current);
       heldRef.current = undefined;
-      setSrc(url);
+      setSrc(getAppUrl(url));
       setLoadState("ready");
       return;
     }

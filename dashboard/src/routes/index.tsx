@@ -1,5 +1,6 @@
 import { lazy } from "react";
 import { Navigate, useLocation } from "react-router-dom";
+import { DSM_NATIVE } from "../api/config";
 
 // Lazy-loaded pages — Common
 const ExpertsPage = lazy(() => import("../pages/Experts"));
@@ -284,7 +285,10 @@ export const routeConfigs: RouteConfig[] = [
   { path: "/cron-jobs", element: <Navigate to="/tasks" replace /> },
 
   // Misc
-  { path: "/pwa-debug", element: <PwaDebugPage /> },
+  {
+    path: "/pwa-debug",
+    element: DSM_NATIVE ? <Navigate to="/chat" replace /> : <PwaDebugPage />,
+  },
   { path: "/", element: <Navigate to="/chat" replace /> },
   { path: "*", element: <NotFoundPage /> },
 ];

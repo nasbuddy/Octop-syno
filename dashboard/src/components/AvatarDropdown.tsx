@@ -31,6 +31,7 @@ import { useTranslation } from "react-i18next";
 import { authApi } from "../api/modules/auth";
 import { preferencesApi } from "../api/modules/preferences";
 import { clearAuthToken } from "../api/request";
+import { DSM_NATIVE } from "../api/config";
 import { applyGuestLocale, applyUserLocale } from "../utils/locale";
 import { apiErrorMessage } from "../utils/apiError";
 import { isSsoPopupMessage, openSsoPopup } from "../utils/ssoPopup";
@@ -124,6 +125,11 @@ export default function AvatarDropdown({
 
   const handleLogout = useCallback(async () => {
     setMenuOpen(false);
+    if (DSM_NATIVE) {
+      clearAuthToken();
+      window.location.assign("/");
+      return;
+    }
     await authApi.logout();
     clearAuthToken();
     await applyGuestLocale();
@@ -407,10 +413,16 @@ export default function AvatarDropdown({
         <span>{t("account.settings")}</span>
       </button>
 
-      <button type="button" className={styles.menuItem} onClick={openPassword}>
-        <KeyRound size={16} strokeWidth={1.8} />
-        <span>{t("account.changePassword")}</span>
-      </button>
+      {!DSM_NATIVE && (
+        <button
+          type="button"
+          className={styles.menuItem}
+          onClick={openPassword}
+        >
+          <KeyRound size={16} strokeWidth={1.8} />
+          <span>{t("account.changePassword")}</span>
+        </button>
+      )}
 
       {userCan(user, "update") && (
         <button
@@ -434,7 +446,7 @@ export default function AvatarDropdown({
         onClick={() => void handleLogout()}
       >
         <LogOut size={16} strokeWidth={1.8} />
-        <span>{t("auth.logout")}</span>
+        <span>{t(DSM_NATIVE ? "auth.returnToDsm" : "auth.logout")}</span>
       </button>
     </div>
   );
@@ -648,7 +660,7 @@ export default function AvatarDropdown({
         <PaletteSwitcher />
       </section>
 
-      {ssoRows.length > 0 && (
+      {!DSM_NATIVE && ssoRows.length > 0 && (
         <>
           <Divider className={styles.settingsDivider} />
           <section className={styles.settingsSection}>

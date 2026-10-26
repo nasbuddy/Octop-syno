@@ -1,8 +1,8 @@
-import { getApiUrl } from "./config";
+import { DSM_NATIVE, getApiUrl, getAppUrl } from "./config";
 import i18n from "../i18n";
 import { markNavigatingAway } from "../utils/reloadOnStaleChunk";
 
-const AUTH_TOKEN_KEY = "auth_token";
+const AUTH_TOKEN_KEY = DSM_NATIVE ? "octop:dsm:auth_token" : "auth_token";
 /** sessionStorage handoff for SSO redirects / popups (default = remember). */
 const AUTH_REMEMBER_PREF_KEY = "auth_remember_pref";
 
@@ -72,6 +72,7 @@ export function isSessionOnlyAuth(): boolean {
  * post the token back to the opener — ``sessionStorage`` is not shared.
  */
 export function setAuthToken(token: string, remember: boolean = true) {
+  if (DSM_NATIVE) remember = false;
   if (remember) {
     localStorage.setItem(AUTH_TOKEN_KEY, token);
     sessionStorage.removeItem(AUTH_TOKEN_KEY);
@@ -129,7 +130,7 @@ function handleSetupRequired(): void {
   }
   _redirectingToSetup = true;
   // Full reload drops any in-flight React state.
-  window.location.replace("/setup");
+  window.location.replace(getAppUrl("/setup"));
 }
 
 /** Wizard endpoints stay reachable while lockdown is active. */
@@ -311,6 +312,12 @@ const SESSION_UNAUTHORIZED_CODES = new Set(["AUTH_FAILED", "TOKEN_EXPIRED"]);
  */
 function handleUnauthorized(): void {
   if (_redirectingToLogin) return;
+  if (DSM_NATIVE) {
+    _redirectingToLogin = true;
+    markNavigatingAway();
+    window.location.replace(getAppUrl("/login"));
+    return;
+  }
   const path = window.location.pathname;
   if (
     path.startsWith("/setup") ||
@@ -326,7 +333,7 @@ function handleUnauthorized(): void {
   if (takenOver) return;
 
   markNavigatingAway();
-  window.location.replace("/login");
+  window.location.replace(getAppUrl("/login"));
 }
 
 /**

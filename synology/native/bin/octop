@@ -1,0 +1,11 @@
+#!/bin/sh
+set -eu
+OCTOP_PACKAGE=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
+export HOME="${SYNOPKG_PKGVAR:-/var/packages/Octop/var}"
+export OCTOP_HOME="$HOME/.octop"
+export PYTHONNOUSERSITE=1
+export OCTOP_DSM_AUTH=1
+unset PYTHONPATH
+umask 077
+mkdir -p "$OCTOP_HOME"
+exec "$OCTOP_PACKAGE/runtime/bin/python3" "$OCTOP_PACKAGE/launch.py" "$@"
