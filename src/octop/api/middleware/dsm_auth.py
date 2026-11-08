@@ -114,6 +114,9 @@ class DsmAuthMiddleware:
         state = scope.setdefault("state", {})
         state["octop_user"] = user
         state["dsm_session"] = binding
+        native = getattr(self.server, "native_synology", None)
+        if native is not None:
+            native.remember(user, identity, service.request_context(context))
         return identity
 
     async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:
@@ -121,6 +124,16 @@ class DsmAuthMiddleware:
             await self.app(scope, receive, send)
             return
         path = scope["path"]
+        root_path = scope.get("root_path", "")
+        # DSM's proxy already strips this prefix; aliases bypass the API gates.
+        if root_path and (path == root_path or path.startswith(root_path + "/")):
+            await self._deny(
+                scope,
+                receive,
+                send,
+                OctopError(ErrorCode.AUTH_FAILED, "unexpected DSM path prefix", status=404),
+            )
+            return
         # Internal MCP has its own per-instance credential, used by background agents.
         if scope["type"] == "http" and (
             not path.startswith("/api/") or path in _PUBLIC or path.startswith("/api/internal/mcp/")
@@ -131,6 +144,9 @@ class DsmAuthMiddleware:
         try:
             identity = await self._authenticate(scope, context)
         except OctopError as exc:
+            native = getattr(self.server, "native_synology", None)
+            if native is not None:
+                native.forget(context)
             await self._deny(scope, receive, send, exc)
             return
 

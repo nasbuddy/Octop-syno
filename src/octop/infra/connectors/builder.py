@@ -322,6 +322,12 @@ def validate_create_credentials(
     if entry.phase != "available":
         raise ValueError(f"connector {kind} is not available yet")
 
+    if kind == "synology-nas":
+        value = credentials.get("allow_writes", False)
+        if type(value) is not bool and value not in ("true", "false"):
+            raise ValueError("allow_writes must be true or false")
+        return {"allow_writes": value is True or value == "true"}
+
     out: dict[str, Any] = {}  # pre-declare to avoid mypy no-redef errors
 
     if entry.auth_kind == "personal_token":

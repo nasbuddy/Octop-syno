@@ -801,6 +801,13 @@ async def create_instance(
     if entry.phase != "available":
         raise OctopError(ErrorCode.CONNECTOR_KIND_UNSUPPORTED, f"{body.kind} not available")
 
+    if body.kind == "synology-nas" and (
+        server.native_synology is None
+        or body.shared is True
+        or body.visibility not in (None, "owner")
+    ):
+        raise OctopError(ErrorCode.FORBIDDEN, "native DSM connector is private")
+
     repo = server.services.repos.connector_repo
     svc = _connector_service(server)
     display_name = body.display_name.strip()
@@ -919,6 +926,10 @@ async def patch_instance(
     if inst is None:
         raise OctopError(ErrorCode.CONNECTOR_NOT_FOUND, f"instance {instance_id!r} not found")
     _assert_can_manage_connector(inst, user)
+    if inst.kind == "synology-nas" and (
+        body.shared is True or body.visibility not in (None, "owner")
+    ):
+        raise OctopError(ErrorCode.FORBIDDEN, "native DSM connector is private")
     if is_custom_mcp_kind(inst.kind):
         raise OctopError(
             ErrorCode.CONNECTOR_KIND_UNSUPPORTED,
@@ -1122,6 +1133,12 @@ async def test_instance(
     creds = await svc.ensure_fresh_credentials(instance_id, inst.kind)
     if not creds:
         raise OctopError(ErrorCode.CONNECTOR_INVALID_CREDENTIALS, "missing credentials")
+    if inst.kind == "synology-nas":
+        native = server.native_synology
+        if native is None or inst.shared:
+            raise OctopError(ErrorCode.FORBIDDEN, "native DSM connector is private")
+        native_result: dict[str, Any] = await native.probe(inst.user_id, creds)
+        return native_result
     if inst.kind in {"agently-cli", "ragflow"}:
         creds["_locale"] = resolve_request_locale(request)
 
@@ -1145,12 +1162,19 @@ async def test_credentials(
     server: Any = Depends(get_server),
 ) -> dict[str, Any]:
     """Validate credentials before creating an instance (no persistence)."""
-    del user
     entry = get_catalog_entry(body.kind)
     if entry is None:
         raise OctopError(ErrorCode.CONNECTOR_KIND_UNSUPPORTED, f"unknown kind {body.kind!r}")
     if entry.phase != "available":
         raise OctopError(ErrorCode.CONNECTOR_KIND_UNSUPPORTED, f"{body.kind} not available")
+    if body.kind == "synology-nas":
+        native = server.native_synology
+        if native is None:
+            raise OctopError(ErrorCode.FORBIDDEN, "native DSM connector requires DSM")
+        native_result: dict[str, Any] = await native.probe(
+            user.id, validate_create_credentials(body.kind, body.credentials)
+        )
+        return native_result
     try:
         cred_payload = await prepare_probe_credentials(
             body.kind,

@@ -1,0 +1,138 @@
+{
+  "id": "synology-nas",
+  "scene": "tech",
+  "label": {
+    "zh": "群晖管家",
+    "en": "Synology NAS Manager"
+  },
+  "description": {
+    "zh": "按应用技能管理群晖笔记、日历、文件、下载、套件、容器、虚拟机、照片与音乐，支持 DSM 系统巡检；先核对能力，变更预览后执行并验证。",
+    "en": "Use app-specific skills for Synology notes, calendar, files, downloads, packages, containers, VMs, photos and music, plus DSM health checks. Verify capabilities, preview changes and check results."
+  },
+  "welcome_message": {
+    "zh": "我是你的群晖管家。想查看笔记、安排日历、管理应用，或检查 NAS 状态和整理文件，直接告诉我，我会按应用选择技能并核对实际能力。",
+    "en": "I am your Synology NAS manager. Ask about notes, calendar, apps, NAS health or files. I will select the relevant app skill and verify its capabilities."
+  },
+  "icon_name": "server",
+  "icon_url": "/experts/avatars/scene-tech.svg",
+  "color": "#536AF5",
+  "prompt_files": [
+    "SOUL.md"
+  ],
+  "quick_prompts": [
+    {
+      "title": {
+        "zh": "查看笔记",
+        "en": "Browse notes"
+      },
+      "description": {
+        "zh": "查看笔记本，选择范围后查找或摘要",
+        "en": "Choose a notebook before finding or summarizing notes"
+      },
+      "prompt": {
+        "zh": "帮我查看群晖 Note Station 中可访问的笔记本，先列出笔记本，让我选择要查找或整理的范围，不修改笔记。",
+        "en": "List my accessible Note Station notebooks so I can choose where to search or organize notes. Do not change any notes."
+      },
+      "color": "#fef3c7",
+      "icon_name": "notebook"
+    },
+    {
+      "title": {
+        "zh": "查看日历",
+        "en": "Browse calendar"
+      },
+      "description": {
+        "zh": "按服务端时区查看今天的日程",
+        "en": "Check today's schedule using the server timezone"
+      },
+      "prompt": {
+        "zh": "查看群晖 Synology Calendar 中今天的日程。先确认服务端时区、可访问的日历和接口能力，只查询，不创建或修改事件。",
+        "en": "Show today's events in Synology Calendar. First verify the server timezone, accessible calendars and API capabilities. Do not create or modify events."
+      },
+      "color": "#eef2ff",
+      "icon_name": "calendar"
+    },
+    {
+      "title": {
+        "zh": "NAS 健康巡检",
+        "en": "NAS health check"
+      },
+      "description": {
+        "zh": "检查负载、容量与硬盘健康，只读巡检",
+        "en": "Inspect load, capacity and disk health without changes"
+      },
+      "prompt": {
+        "zh": "帮我对已连接的群晖 NAS 做一次只读健康巡检，先确认账号和连接，再检查系统负载、存储空间、硬盘健康和相关告警。不要启动检测任务或修改设置。",
+        "en": "Run a read-only health check on my connected Synology NAS. Confirm the connection and account, then inspect load, storage capacity, disk health and relevant alerts. Do not start tests or change settings."
+      },
+      "color": "#e8f4ff",
+      "icon_name": "activity"
+    },
+    {
+      "title": {
+        "zh": "文件整理",
+        "en": "Organize files"
+      },
+      "description": {
+        "zh": "先列出目录，预览整理方案再操作",
+        "en": "List files and preview a plan before changes"
+      },
+      "prompt": {
+        "zh": "帮我整理群晖中的文件。先查看我可访问的共享目录，询问要整理的目录，再给出具体方案；不要直接删除或覆盖。",
+        "en": "Help organize files on my Synology NAS. List accessible shares, ask which folder to organize, and preview a concrete plan before making changes. Do not delete or overwrite files."
+      },
+      "color": "#dcfce7",
+      "icon_name": "folder"
+    },
+    {
+      "title": {
+        "zh": "管理下载任务",
+        "en": "Manage downloads"
+      },
+      "description": {
+        "zh": "查看下载状态，按要求添加或暂停任务",
+        "en": "Inspect downloads and add or pause tasks on request"
+      },
+      "prompt": {
+        "zh": "查看群晖 Download Station 的当前任务和状态，告诉我哪些正在下载、已完成或出错；先不要修改任务。",
+        "en": "List current Synology Download Station tasks and identify downloading, completed and failed tasks. Do not change any tasks yet."
+      },
+      "color": "#fef3c7",
+      "icon_name": "download"
+    },
+    {
+      "title": {
+        "zh": "套件与服务",
+        "en": "Packages and services"
+      },
+      "description": {
+        "zh": "查看安装版本和运行状态，诊断异常",
+        "en": "Check installed versions and service health"
+      },
+      "prompt": {
+        "zh": "检查群晖已安装套件的运行状态和版本，重点列出异常或停止的服务；只查询，不自动安装、升级或重启。",
+        "en": "Inspect installed Synology packages, versions and running states. Highlight failed or stopped services without installing, upgrading or restarting anything."
+      },
+      "color": "#f1f5f9",
+      "icon_name": "package"
+    }
+  ],
+  "task_examples": {
+    "zh": [
+      "每天「09:00」只读检查群晖系统负载和存储容量，仅在异常时通知我",
+      "每周一「10:00」汇总群晖硬盘健康与存储池状态，只读查询，不启动检测任务",
+      "每天「18:00」汇总 Download Station 的失败任务，只汇报，不自动重试或删除",
+      "每周五「16:00」检查已安装套件状态，列出停止或异常的服务，不自动启停",
+      "每「4 小时」只读检查存储空间，使用率超过 85% 时通知我，不删除数据",
+      "每月 1 日「10:00」生成 NAS 容量和健康摘要，不修改任何设置"
+    ],
+    "en": [
+      "Every day at 09:00, check NAS load and capacity read-only and notify me only about problems",
+      "Every Monday at 10:00, summarize disk health and storage pools without starting disk tests",
+      "Every day at 18:00, report failed Download Station tasks without retrying or deleting them",
+      "Every Friday at 16:00, report stopped or abnormal packages without changing their state",
+      "Every 4 hours, check storage read-only and notify me above 85% usage without deleting data",
+      "On the first day of each month at 10:00, report NAS capacity and health without changes"
+    ]
+  }
+}

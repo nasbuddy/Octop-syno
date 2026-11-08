@@ -123,6 +123,7 @@ artifacts = [
 line-length = 100
 target-version = "py312"
 src = ["src", "tests"]
+extend-exclude = ["src/octop/_vendor/"]
 include = ["*.py", "*.pyi", "*.pyw", "*.ipynb", "**/pyproject.toml", "**/ruff.toml", "**/.ruff.toml"]
 
 [tool.ruff.lint]
@@ -139,11 +140,16 @@ strict = true
 ignore_missing_imports = true
 files = ["src/octop"]
 exclude = [
+    "src/octop/_vendor/",
     "src/octop/dashboard/",
     "src/octop/infra/agents/experts/library/",
     "src/octop/infra/agents/plugins/bundled/",
     "src/octop/infra/agents/subagents/library/",
 ]
+
+[[tool.mypy.overrides]]
+module = "octop._vendor.*"
+ignore_errors = true
 
 [[tool.mypy.overrides]]
 module = "tests.*"

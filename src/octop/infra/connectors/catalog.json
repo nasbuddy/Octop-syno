@@ -2,6 +2,48 @@
   "version": 1,
   "connectors": [
     {
+      "kind": "synology-nas",
+      "name": {
+        "en": "Synology NAS",
+        "zh": "群晖 NAS"
+      },
+      "description": {
+        "en": "Built-in NAS MCP using your current native DSM session; manage files, downloads, packages, storage and networking with DSM account permissions.",
+        "zh": "内置 NAS MCP，沿用当前原生 DSM 登录状态；按 DSM 账号权限管理文件、下载、套件、存储与网络。"
+      },
+      "auth_kind": "custom_fields",
+      "doc_url": "https://help.synology.com/developer-guide/integrate_dsm/web_authentication.html",
+      "icon": "server",
+      "color": "#536af5",
+      "phase": "available",
+      "mcp_mode": "internal",
+      "category": "self_hosted",
+      "auth_hint": {
+        "en": "Available in the native DSM package. No separate MCP token or password is required. Each user has a private connection; sign in to DSM again if the session expires. Writes default to preview and require execute=true.",
+        "zh": "仅原生 DSM 套件可用，无需额外 MCP 令牌或密码。各用户连接独立；会话失效后重新登录 DSM。写操作默认预览，实际执行需明确授权。"
+      },
+      "credential_fields": [
+        {
+          "key": "allow_writes",
+          "label": {
+            "en": "Allow confirmed writes (true / false)",
+            "zh": "允许已确认的写入（true / false）"
+          },
+          "field_type": "text",
+          "required": false,
+          "placeholder": {
+            "en": "false",
+            "zh": "false"
+          },
+          "help": {
+            "en": "false allows previews only; true permits execute=true within the current DSM account permissions.",
+            "zh": "false 仅允许预览；true 允许在当前 DSM 账号权限内执行 execute=true。"
+          },
+          "secret": false
+        }
+      ]
+    },
+    {
       "kind": "tencent-docs",
       "name": { "en": "Tencent Docs", "zh": "腾讯文档" },
       "description": {

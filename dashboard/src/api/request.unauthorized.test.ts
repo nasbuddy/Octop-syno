@@ -1,8 +1,12 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-vi.mock("./config", () => ({
-  getApiUrl: (path: string) => `/api${path}`,
-}));
+vi.mock("./config", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("./config")>();
+  return {
+    ...actual,
+    getApiUrl: (path: string) => `/api${path}`,
+  };
+});
 
 vi.mock("../i18n", () => ({
   default: { language: "zh" },

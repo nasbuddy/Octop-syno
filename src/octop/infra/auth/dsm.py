@@ -109,9 +109,14 @@ class DsmAuthService:
         self._lock = asyncio.Lock()
         self._syno_tokens: OrderedDict[bytes, str] = OrderedDict()
 
+    def request_context(self, request: DsmRequest) -> DsmRequest:
+        """Complete a just-authenticated WS/download context with its verified CSRF token."""
+        key = hashlib.sha256(f"{request.session_id()}\0{request.remote_addr}".encode()).digest()
+        return replace(request, syno_token=request.syno_token or self._syno_tokens.get(key, ""))
+
     async def authenticate(self, request: DsmRequest) -> DsmIdentity:
         key = hashlib.sha256(f"{request.session_id()}\0{request.remote_addr}".encode()).digest()
-        context = replace(request, syno_token=request.syno_token or self._syno_tokens.get(key, ""))
+        context = self.request_context(request)
         try:
             identity = await asyncio.get_running_loop().run_in_executor(
                 None, verify_session, context

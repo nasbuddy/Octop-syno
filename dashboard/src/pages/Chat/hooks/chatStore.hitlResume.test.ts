@@ -12,9 +12,13 @@ import {
   withdrawCommittedSteer,
 } from "./chatStore";
 
-vi.mock("../../../api/config", () => ({
-  getApiUrl: (path: string) => `/api${path}`,
-}));
+vi.mock("../../../api/config", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("../../../api/config")>();
+  return {
+    ...actual,
+    getApiUrl: (path: string) => `/api${path}`,
+  };
+});
 
 const SESSION = "test-hitl-resume";
 

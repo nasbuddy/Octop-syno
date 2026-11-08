@@ -41,6 +41,7 @@ if TYPE_CHECKING:
     from octop.infra.auth.ldap.service import LdapAuthService
     from octop.infra.auth.ldap.throttle import LdapBindThrottle
     from octop.infra.auth.sso.service import SsoService
+    from octop.infra.connectors.synology import NativeSynologyService
     from octop.infra.db.services import SharedServices
     from octop.infra.history.trajectory.service import TrajectoryService
 
@@ -332,6 +333,21 @@ class OctopServer:
         self._ldap_service: LdapAuthService | None = None
         self._ldap_bind_throttle: LdapBindThrottle | None = None
         self._ldap_bind_throttle_services: SharedServices | None = None
+        self._native_synology: NativeSynologyService | None = None
+
+    @property
+    def native_synology(self) -> NativeSynologyService | None:
+        if os.environ.get("OCTOP_DSM_AUTH") != "1":
+            return None
+        if self.services is None or self.app_runtime is None or self.expert_catalog is None:
+            return None
+        if self._native_synology is None:
+            from octop.infra.connectors.synology import NativeSynologyService
+
+            self._native_synology = NativeSynologyService(
+                self.services, self.app_runtime.agent_registry, self.expert_catalog
+            )
+        return self._native_synology
 
     # Backward compat: expose user_manager directly
     @property

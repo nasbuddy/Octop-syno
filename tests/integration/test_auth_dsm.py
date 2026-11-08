@@ -12,6 +12,7 @@ from fastapi import WebSocket
 from starlette.responses import StreamingResponse
 from starlette.websockets import WebSocketDisconnect
 
+from octop.api.middleware.dsm_auth import DsmAuthMiddleware
 from octop.infra.auth import dsm
 from octop.infra.auth.tokens import decode_token, sign_token
 from octop.infra.errors import ErrorCode, OctopError
@@ -41,7 +42,7 @@ async def dsm_env(tmp_octop_home, monkeypatch) -> AsyncIterator[Any]:
         if session_id == "alice-session":
             if context.syno_token != "synthetic-csrf":
                 raise OctopError(ErrorCode.AUTH_FAILED, "missing DSM CSRF token")
-            return dsm.DsmIdentity("alice", 1026, state["admin"])
+            return dsm.DsmIdentity(state.get("username", "alice"), 1026, state["admin"])
         if session_id == "bob-session":
             return dsm.DsmIdentity("bob", 1027, False)
         raise OctopError(ErrorCode.AUTH_FAILED, "invalid")
@@ -71,6 +72,315 @@ async def test_dsm_bootstrap_reuses_identity_and_maps_administrators(dsm_env):
     assert downgraded.json()["role"] == "user"
     denied = await client.get("/api/users", headers=auth)
     assert denied.status_code == 403
+
+
+async def test_dsm_provisions_private_nas_expert_once(dsm_env):
+    client, server, auth, _ = dsm_env
+    me = (await client.get("/api/auth/me", headers=auth)).json()
+    rows = server.services.repos.connector_repo.list_by_user(me["id"])
+    assert len(rows) == 1
+    connector = rows[0]
+    assert connector.kind == "synology-nas"
+    assert connector.shared is False
+    agents = (await client.get("/api/agents", headers=auth)).json()
+    assert len(agents) == 1
+    assert agents[0]["template_name"] == "synology-nas"
+    assert agents[0]["mcp_servers"] == [connector.mcp_server_name]
+    assert agents[0]["user_id"] == me["id"]
+    await client.get("/api/auth/dsm/session", headers=auth)
+    assert len(server.services.repos.connector_repo.list_by_user(me["id"])) == 1
+    assert len((await client.get("/api/agents", headers=auth)).json()) == 1
+
+
+async def test_dsm_default_expert_failure_does_not_block_login(dsm_env, monkeypatch, caplog):
+    client, server, auth, _ = dsm_env
+    monkeypatch.setattr(
+        server.native_synology,
+        "ensure_defaults",
+        AsyncMock(side_effect=RuntimeError("private-credential-sentinel")),
+    )
+    response = await client.get("/api/auth/dsm/session", headers=auth)
+    assert response.status_code == 200
+    assert response.json()["access_token"]
+    assert (await client.get("/api/auth/me", headers=auth)).status_code == 200
+    assert "failure=RuntimeError" in caplog.text
+    assert "private-credential-sentinel" not in caplog.text
+
+
+async def test_dsm_default_expert_preserves_an_existing_same_name(dsm_env):
+    client, server, auth, _ = dsm_env
+    me = (await client.get("/api/auth/me", headers=auth)).json()
+    existing = server.app_runtime.agent_registry.list_rows()[0]
+    server.services.repos.agent_repo.update_config(existing.agent_id, template_name="custom-nas")
+    server.services.settings_repo.delete(f"synology.defaults.{me['id']}")
+    response = await client.get("/api/auth/dsm/session", headers=auth)
+    assert response.status_code == 200
+    rows = server.app_runtime.agent_registry.list_rows()
+    assert len(rows) == 2
+    assert {row.name for row in rows} == {"群晖管家", "群晖管家 (2)"}
+    kept = server.services.repos.agent_repo.get(existing.agent_id)
+    assert kept.name == "群晖管家" and kept.template_name == "custom-nas"
+    assert len(server.services.repos.connector_repo.list_by_user(me["id"])) == 1
+
+
+async def test_native_nas_session_supports_unicode_dsm_names(dsm_env):
+    client, server, auth, state = dsm_env
+    state["username"] = "群晖用户"
+    response = await client.get("/api/auth/dsm/session", headers=auth)
+    assert response.status_code == 200
+    user_id = response.json()["user_id"]
+    session = await server.native_synology._session(user_id)
+    assert session.identity.username == "群晖用户"
+
+
+async def test_native_nas_connector_cannot_be_shared(dsm_env):
+    client, server, auth, _ = dsm_env
+    me = (await client.get("/api/auth/me", headers=auth)).json()
+    connector = server.services.repos.connector_repo.list_by_user(me["id"])[0]
+    response = await client.patch(
+        f"/api/connector-instances/{connector.instance_id}", headers=auth, json={"shared": True}
+    )
+    assert response.status_code == 403
+    assert server.services.repos.connector_repo.get(connector.instance_id).shared is False
+
+
+async def test_native_nas_runtime_uses_only_owners_live_session(dsm_env, monkeypatch):
+    import json
+    from urllib.parse import parse_qs
+
+    import httpx
+
+    from octop._vendor.nas_local_mcp import nas_mcp
+    from octop.infra.connectors import synology
+    from octop.infra.connectors.service import ConnectorService
+
+    client, server, auth, state = dsm_env
+    nas_mcp.CACHE.clear()
+    calls = []
+
+    def request(req):
+        fields = parse_qs(req.content.decode())
+        api = fields["api"][0]
+        calls.append((api, fields))
+        if api == "SYNO.API.Info":
+            data = {
+                name: {"path": "entry.cgi", "minVersion": 1, "maxVersion": 2}
+                for name in (
+                    "SYNO.FileStation.Info",
+                    "SYNO.Core.System",
+                    "SYNO.FileStation.CreateFolder",
+                    "SYNO.Core.Package.Installation",
+                )
+            }
+        else:
+            assert fields["_sid"] == ["alice-session"]
+            assert fields["SynoToken"] == ["synthetic-csrf"]
+            data = {"model": "simulated NAS"}
+        return httpx.Response(200, json={"success": True, "data": data})
+
+    monkeypatch.setattr(synology, "_NativeTransport", lambda _context: httpx.MockTransport(request))
+    me = (await client.get("/api/auth/me", headers=auth)).json()
+    connector = server.services.repos.connector_repo.list_by_user(me["id"])[0]
+    service = ConnectorService(
+        repo=server.services.repos.connector_repo,
+        secret_repo=server.services.secret_repo,
+        settings_repo=server.services.settings_repo,
+        config=server.services.config,
+    )
+    creds = service.decrypt(connector.instance_id)
+    endpoint = (
+        f"/api/internal/mcp/synology-nas/{connector.instance_id}?token={creds['internal_token']}"
+    )
+
+    async def call(name, arguments=None):
+        response = await client.post(
+            endpoint,
+            json={
+                "jsonrpc": "2.0",
+                "id": 1,
+                "method": "tools/call",
+                "params": {"name": name, "arguments": arguments or {}},
+            },
+        )
+        assert response.status_code == 200
+        return response.json()["result"]
+
+    listed = await client.post(endpoint, json={"id": 1, "method": "tools/list"})
+    assert len(listed.json()["result"]["tools"]) == 10
+    resources = await client.post(endpoint, json={"id": 1, "method": "resources/list"})
+    assert len(resources.json()["result"]["resources"]) == 1
+    prompts = await client.post(endpoint, json={"id": 1, "method": "prompts/list"})
+    assert len(prompts.json()["result"]["prompts"]) == 1
+    capabilities = await client.post(
+        endpoint,
+        json={"id": 1, "method": "resources/read", "params": {"uri": "nas://capabilities"}},
+    )
+    assert "alice-session" not in capabilities.text
+    assert "native DSM session" in capabilities.text
+    status = await call("nas_status")
+    assert status["isError"] is False
+    assert json.loads(status["content"][0]["text"])["authenticated"] is True
+    preview = await call(
+        "nas_operate", {"name": "files.mkdir", "params": {"folder_path": "/share", "name": "new"}}
+    )
+    assert preview["isError"] is False
+    assert not any(api == "SYNO.FileStation.CreateFolder" for api, _ in calls)
+    written = await call(
+        "nas_operate",
+        {
+            "name": "files.mkdir",
+            "params": {"folder_path": "/share", "name": "new"},
+            "execute": True,
+        },
+    )
+    assert written["isError"] is False
+    assert sum(api == "SYNO.FileStation.CreateFolder" for api, _ in calls) == 1
+    assert "alice-session" not in json.dumps(written)
+    assert "synthetic-csrf" not in json.dumps(written)
+    package_params = {
+        "id": "Demo",
+        "url": "https://packages.invalid/Demo.spk",
+        "checksum": "a" * 32,
+        "filesize": 12345,
+        "volume_path": "/volume2",
+    }
+    package_preview = await call(
+        "nas_operate", {"name": "packages.install", "params": package_params}
+    )
+    assert package_preview["isError"] is False
+    assert not any(api == "SYNO.Core.Package.Installation" for api, _ in calls)
+    package_written = await call(
+        "nas_operate", {"name": "packages.install", "params": package_params, "execute": True}
+    )
+    assert package_written["isError"] is False
+    requests = [fields for api, fields in calls if api == "SYNO.Core.Package.Installation"]
+    assert len(requests) == 1
+    assert requests[0]["name"] == ['"Demo"']
+    assert requests[0]["check_codesign"] == ["true"]
+    assert requests[0]["force"] == ["false"]
+    assert "alice-session" not in json.dumps(package_written)
+    before = len(calls)
+    state["valid"] = False
+    denied = await call("nas_operate", {"name": "system.info"})
+    assert denied["isError"] is True
+    assert len(calls) == before
+    assert not server.native_synology._sessions
+    nas_mcp.CACHE.clear()
+
+
+async def test_native_note_create_preview_and_verified_save_use_the_dsm_session(
+    dsm_env, monkeypatch
+):
+    import json
+    from urllib.parse import parse_qs
+
+    import httpx
+
+    from octop._vendor.nas_local_mcp import nas_mcp
+    from octop.infra.connectors import synology
+    from octop.infra.connectors.service import ConnectorService
+
+    client, server, auth, _ = dsm_env
+    await client.patch("/api/auth/me", headers=auth, json={"locale": "zh"})
+    me = (await client.get("/api/auth/me", headers=auth)).json()
+    note = {
+        "object_id": "new-note",
+        "parent_id": "book-1",
+        "title": "新笔记",
+        "content": "",
+        "brief": "",
+        "ver": "v1",
+        "attachment": {},
+        "tag": [],
+    }
+    calls = []
+
+    def request(request):
+        fields = {key: values[0] for key, values in parse_qs(request.content.decode()).items()}
+        method = fields["method"]
+        if fields["api"] == "SYNO.API.Info":
+            data = {
+                "SYNO.NoteStation.Note": {"path": "entry.cgi", "minVersion": 1, "maxVersion": 3}
+            }
+        else:
+            assert fields["_sid"] == "alice-session"
+            assert request.headers["Cookie"] == "id=alice-session"
+            calls.append(method)
+            if method == "set":
+                assert json.loads(fields["ver"]) == "v1"
+                assert json.loads(fields["check_conflict"]) is True
+                note.update(
+                    content=json.loads(fields["content"]),
+                    brief=json.loads(fields["brief"]),
+                    ver="v2",
+                )
+            data = {"object_id": note["object_id"]} if method == "create" else note.copy()
+        return httpx.Response(200, json={"success": True, "data": data})
+
+    nas_mcp.CACHE.clear()
+    monkeypatch.setattr(synology, "_NativeTransport", lambda _context: httpx.MockTransport(request))
+    connector = server.services.repos.connector_repo.list_by_user(me["id"])[0]
+    service = ConnectorService(
+        repo=server.services.repos.connector_repo,
+        secret_repo=server.services.secret_repo,
+        settings_repo=server.services.settings_repo,
+        config=server.services.config,
+    )
+    token = service.decrypt(connector.instance_id)["internal_token"]
+    endpoint = f"/api/internal/mcp/synology-nas/{connector.instance_id}?token={token}"
+
+    async def call(execute=False):
+        response = await client.post(
+            endpoint,
+            json={
+                "jsonrpc": "2.0",
+                "id": 1,
+                "method": "tools/call",
+                "params": {
+                    "name": "nas_operate",
+                    "arguments": {
+                        "name": "notes.create",
+                        "params": {
+                            "parent_id": "book-1",
+                            "title": "新笔记",
+                            "content": "<p>正文</p>",
+                        },
+                        "execute": execute,
+                    },
+                },
+            },
+        )
+        assert response.status_code == 200
+        result = response.json()["result"]
+        assert not result["isError"]
+        assert "alice-session" not in json.dumps(result)
+        return json.loads(result["content"][0]["text"])
+
+    preview = await call()
+    assert preview["status"] == "preview" and not calls
+    saved = await call(execute=True)
+    assert saved["verified"] and saved["note"]["content"] == "<p>正文</p>"
+    assert "已回读" in saved["message"]
+    assert calls == ["create", "get", "set", "get"]
+    nas_mcp.CACHE.clear()
+
+
+async def test_dsm_nas_defaults_are_separate_for_each_user(dsm_env):
+    client, server, auth, _ = dsm_env
+    me = (await client.get("/api/auth/me", headers=auth)).json()
+    bob_headers = {**_HEADERS, "Cookie": "id=bob-session"}
+    boot = await client.get("/api/auth/dsm/session", headers=bob_headers)
+    assert boot.status_code == 200
+    bob_id = boot.json()["user_id"]
+    alice = server.services.repos.connector_repo.list_by_user(me["id"])[0]
+    bob = server.services.repos.connector_repo.list_by_user(bob_id)[0]
+    assert alice.instance_id != bob.instance_id
+    assert not alice.shared and not bob.shared
+    bob_auth = {**bob_headers, "Authorization": f"Bearer {boot.json()['access_token']}"}
+    agents = (await client.get("/api/agents", headers=bob_auth)).json()
+    assert len(agents) == 1
+    assert agents[0]["mcp_servers"] == [bob.mcp_server_name]
+    assert agents[0]["user_id"] == bob_id
 
 
 async def test_dsm_logout_invalidates_existing_token(dsm_env):
@@ -110,6 +420,68 @@ async def test_dsm_rejects_regular_jwt_and_forged_identity_headers(dsm_env):
     assert (await client.get("/api/auth/me", headers=forged)).status_code == 401
     forged.pop("Cookie")
     assert (await client.get("/api/auth/dsm/session", headers=forged)).status_code == 401
+
+
+@pytest.mark.parametrize("regular_jwt", [False, True])
+async def test_dsm_rejects_unstripped_proxy_prefix(dsm_env, regular_jwt):
+    client, server, auth, _ = dsm_env
+    app = client._octop_app
+    assert app.root_path == "/octop"
+    assert app.user_middleware[0].cls is DsmAuthMiddleware
+    headers = {}
+    if regular_jwt:
+        payload = decode_token(
+            server.services.secret_repo.get("jwt"), auth["Authorization"].removeprefix("Bearer ")
+        )
+        token = sign_token(
+            server.services.secret_repo.get("jwt"),
+            sub=payload["sub"],
+            uname=payload["uname"],
+            role=payload["role"],
+        )
+        headers["Authorization"] = f"Bearer {token}"
+    for method, path in (
+        ("GET", "/octop/api/auth/me"),
+        ("POST", "/octop/api/auth/login"),
+        ("GET", "/octop"),
+        ("GET", "/octop/api/health"),
+    ):
+        denied = await client.request(
+            method,
+            path,
+            headers=headers,
+            json={"username": "legacy", "password": "unused"} if method == "POST" else None,
+            follow_redirects=False,
+        )
+        assert denied.status_code == 404
+        assert denied.json()["error"]["code"] == "AUTH_FAILED"
+        assert denied.headers["cache-control"] == "no-store"
+    assert (await client.get("/api/auth/me", headers=headers)).status_code == 401
+    assert (await client.get("/api/auth/me", headers=auth)).status_code == 200
+    assert (await client.get("/api/health")).status_code == 200
+
+
+async def test_dsm_rejects_unstripped_websocket_prefix(dsm_env):
+    client, _, auth, _ = dsm_env
+    app = client._octop_app
+
+    @app.websocket("/api/dsm-prefix-test")
+    async def accept(websocket: WebSocket):
+        await websocket.accept()
+        await websocket.close()
+
+    async def with_headers(scope, receive, send):
+        scope["headers"] += [(k.lower().encode(), v.encode()) for k, v in _HEADERS.items()]
+        await app(scope, receive, send)
+
+    token = auth["Authorization"].removeprefix("Bearer ")
+    ws = ASGIWebSocketSession(with_headers, f"/octop/api/dsm-prefix-test?token={token}")
+    try:
+        with pytest.raises(WebSocketDisconnect) as error:
+            await ws.connect()
+        assert error.value.code == 4001
+    finally:
+        await ws.close()
 
 
 @pytest.mark.parametrize("origin", [None, "http://attacker.invalid", "null"])
@@ -290,6 +662,12 @@ async def test_dsm_oauth_callback_checks_state_owner_and_preserves_base(
     headers.pop("Origin")
     if switch_account:
         headers["Cookie"] = "id=bob-session"
+    denied = await client.get(
+        "/octop/api/connectors/oauth/callback",
+        params={"state": "synthetic-state", "code": "synthetic-code"},
+    )
+    assert denied.status_code == 404
+    exchange.assert_not_awaited()
     response = await client.get(
         "/api/connectors/oauth/callback",
         headers=headers,
@@ -323,6 +701,9 @@ async def test_dsm_internal_mcp_keeps_its_own_credential(dsm_env, monkeypatch):
     monkeypatch.setattr(qcc, "request_resource", request)
     path = f"/api/internal/mcp/qcc/{instance_id}"
     body = {"id": 1, "method": "tools/list"}
+    denied = await client.post(f"/octop{path}", params={"token": token}, json=body)
+    assert denied.status_code == 404
+    request.assert_not_awaited()
     assert (await client.post(path, params={"token": "wrong"}, json=body)).status_code == 401
     request.assert_not_awaited()
     assert (await client.post(path, params={"token": token}, json=body)).status_code == 200

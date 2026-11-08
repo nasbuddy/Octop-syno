@@ -4,6 +4,7 @@ import { ImagePlus } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { message } from "@/utils/antdMessage";
 
+import { getAppUrl } from "../../api/config";
 import styles from "./AvatarPicker.module.less";
 import { ResourceAvatar } from "./ResourceAvatar";
 import type { AvatarPreset, AvatarPresetCatalog } from "./types";
@@ -174,8 +175,8 @@ export function ResourceAvatarPicker({
                 >
                   {renderPreset ? (
                     renderPreset({ preset, index, selected })
-                  ) : portrait ? (
-                    <img src={preset.src} alt="" />
+                  ) : preset.src ? (
+                    <img src={getAppUrl(preset.src)} alt="" />
                   ) : PresetIcon ? (
                     <PresetIcon size={plain ? 22 : 18} />
                   ) : null}

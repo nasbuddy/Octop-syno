@@ -15,6 +15,9 @@ import "@testing-library/jest-dom/vitest";
 import { afterEach, vi } from "vitest";
 import { cleanup } from "@testing-library/react";
 
+// Match Vite's default API origin while allowing vi.stubGlobal overrides.
+Object.assign(globalThis, { BASE_URL: "" });
+
 // Auto-mock react-i18next so components' ``t(key, fallback)`` calls
 // resolve synchronously to ``fallback`` without needing the real
 // i18n module (which would async-fetch tool labels and add 1-2s of
