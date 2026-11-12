@@ -34,7 +34,7 @@ are updating `catalog.json` in the same change.
 
 | Kind | Name | 名称 | Category | Auth | MCP mode |
 |------|------|------|----------|------|----------|
-| `synology-nas` | Synology NAS | 群晖 NAS | self_hosted | custom_fields | internal |
+| `synology-nas` | Synology NAS | 群辉NAS | self_hosted | custom_fields | internal |
 | `tencent-docs` | Tencent Docs | 腾讯文档 | office | personal_token | remote |
 | `tencent-ima` | Tencent IMA | 腾讯 IMA | knowledge | api_key | gateway |
 | `tencent-meeting` | Tencent Meeting | 腾讯会议 | office | personal_token | remote |
@@ -99,7 +99,7 @@ Optional: `quick_auth_url`, `login_url`, `guide_url`, `manual_url`, `auth_hint`,
 
 ## Synology NAS / 群晖 NAS
 
-原生 DSM 套件内置 NAS MCP 与“群晖管家”专家。首次打开已登录的 Octop 页面，会为当前用户创建一个私有的“本机群晖 NAS”连接器，并将“群晖管家”加入该用户的专家列表；不会替换原有专家或当前选择。连接器只绑定到这个专家，不会为所有其他专家默认启用。
+原生 DSM 套件内置 NAS MCP 与“群晖管家”专家。首次打开已登录的 Octop 页面，会为当前用户创建一个私有的“群辉NAS”连接器，并将“群晖管家”加入该用户的专家列表；不会替换原有专家或当前选择。连接器只绑定到这个专家，不会为所有其他专家默认启用。
 
 无需额外 NAS MCP 套件、MCP 令牌或 DSM 密码。每次工具调用都由 DSM 的 `authenticate.cgi` 重新验证当前用户会话，并按 DSM 账号权限请求本机 WebAPI。会话只保留在 NAS 内存中，不写入连接器数据库、专家文件或安装包；服务重启或 DSM 登录失效后，重新打开已登录的 Octop 页面即可恢复。默认写操作先预览，明确授权后才传 `execute=true`；连接器中的 `allow_writes=false` 可进一步限制为只读。
 

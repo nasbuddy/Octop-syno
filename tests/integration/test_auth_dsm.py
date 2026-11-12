@@ -81,6 +81,7 @@ async def test_dsm_provisions_private_nas_expert_once(dsm_env):
     assert len(rows) == 1
     connector = rows[0]
     assert connector.kind == "synology-nas"
+    assert connector.display_name == "群辉NAS"
     assert connector.shared is False
     agents = (await client.get("/api/agents", headers=auth)).json()
     assert len(agents) == 1
@@ -90,6 +91,26 @@ async def test_dsm_provisions_private_nas_expert_once(dsm_env):
     await client.get("/api/auth/dsm/session", headers=auth)
     assert len(server.services.repos.connector_repo.list_by_user(me["id"])) == 1
     assert len((await client.get("/api/agents", headers=auth)).json()) == 1
+
+
+@pytest.mark.parametrize(
+    ("previous_name", "expected_name"),
+    [("本机群晖 NAS", "群辉NAS"), ("Local Synology NAS", "群辉NAS"), ("我的 NAS", "我的 NAS")],
+)
+async def test_dsm_updates_only_legacy_connector_names(dsm_env, previous_name, expected_name):
+    client, server, auth, _ = dsm_env
+    me = (await client.get("/api/auth/me", headers=auth)).json()
+    repo = server.services.repos.connector_repo
+    original = repo.get_by_user_kind(me["id"], "synology-nas")
+    assert original is not None
+    repo.update_metadata(original.instance_id, display_name=previous_name)
+
+    response = await client.get("/api/auth/dsm/session", headers=auth)
+
+    assert response.status_code == 200
+    updated = repo.get(original.instance_id)
+    assert updated is not None and updated.display_name == expected_name
+    assert updated.mcp_server_name == original.mcp_server_name
 
 
 async def test_dsm_default_expert_failure_does_not_block_login(dsm_env, monkeypatch, caplog):

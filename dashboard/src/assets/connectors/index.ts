@@ -16,6 +16,7 @@ import qcc from "./qcc.png";
 import ragflow from "./ragflow.svg";
 import qqMail from "./qq-mail.png";
 import qqMusic from "./qq-music.png";
+import synologyNas from "./synology-nas.png";
 import tencentDocs from "./tencent-docs.png";
 import tencentIma from "./tencent-ima.png";
 import tencentMeeting from "./tencent-meeting.png";
@@ -30,6 +31,7 @@ import yuandian from "./yuandian.png";
 import yuqueMcp from "./yuque-mcp.png";
 
 export const CONNECTOR_LOGOS: Record<string, string> = {
+  "synology-nas": synologyNas,
   "tencent-ardot": tencentArdot,
   "tencent-docs": tencentDocs,
   "baidu-map": baiduMap,

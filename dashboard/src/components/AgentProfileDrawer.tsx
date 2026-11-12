@@ -27,6 +27,7 @@ import {
 } from "../pages/Experts/components/iconForName";
 import { fetchConfigMdFiles } from "../pages/Experts/components/expertFileGroups";
 import { useSkillDisplayName } from "../pages/Agent/Skills/skillDisplayNames";
+import { resolveSkillIconUrl } from "../pages/Agent/Skills/skillIcons";
 import { DEFAULT_SKILL_EMOJI } from "../pages/Agent/Skills/skillMarkdown";
 import SubagentCatalogDrawer from "../pages/Experts/components/SubagentCatalogDrawer";
 import SkillCatalogDrawer from "../pages/Experts/components/SkillCatalogDrawer";
@@ -596,7 +597,7 @@ export default function AgentProfileDrawer({
                             </div>
                           ) : (
                             agentSkills.map((skill) => {
-                              const iconUrl = skill.icon_url?.trim();
+                              const iconUrl = resolveSkillIconUrl(skill);
                               const label = skillDisplayName(skill);
                               return (
                                 <ProfileEntityCard

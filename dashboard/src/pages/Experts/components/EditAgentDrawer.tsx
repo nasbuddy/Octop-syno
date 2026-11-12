@@ -62,6 +62,7 @@ import {
 import { isBridgeAgentId } from "../../../utils/remoteExpert";
 import EditExpertDrawerTitle from "./EditExpertDrawerTitle";
 import { useSkillDisplayName } from "../../Agent/Skills/skillDisplayNames";
+import { resolveSkillIconUrl } from "../../Agent/Skills/skillIcons";
 import { DEFAULT_SKILL_EMOJI } from "../../Agent/Skills/skillMarkdown";
 import FileEditModal from "./FileEditModal";
 import WelcomeConfig, { type WelcomeConfigRef } from "./WelcomeConfig";
@@ -1160,7 +1161,7 @@ function EditAgentDrawerBody({
                             </div>
                           ) : (
                             agentSkills.map((skill) => {
-                              const iconUrl = skill.icon_url?.trim();
+                              const iconUrl = resolveSkillIconUrl(skill);
                               const label = skillDisplayName(skill);
                               return (
                                 <div

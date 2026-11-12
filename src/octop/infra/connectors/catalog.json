@@ -5,7 +5,7 @@
       "kind": "synology-nas",
       "name": {
         "en": "Synology NAS",
-        "zh": "群晖 NAS"
+        "zh": "群辉NAS"
       },
       "description": {
         "en": "Built-in NAS MCP using your current native DSM session; manage files, downloads, packages, storage and networking with DSM account permissions.",
@@ -13,7 +13,7 @@
       },
       "auth_kind": "custom_fields",
       "doc_url": "https://help.synology.com/developer-guide/integrate_dsm/web_authentication.html",
-      "icon": "server",
+      "icon": "synology-nas",
       "color": "#536af5",
       "phase": "available",
       "mcp_mode": "internal",

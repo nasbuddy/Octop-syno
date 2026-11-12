@@ -7,6 +7,7 @@ import { useAsyncResource } from "../../../hooks/useAsyncResource";
 import { parseApiError } from "../../../utils/apiError";
 import { saveBlobAsFile } from "../../../utils/saveBlobAsFile";
 import { showApiError } from "../../../utils/showApiToast";
+import { resolveSkillIconUrl } from "./skillIcons";
 
 /**
  * SkillSpec mirrors the JSON shape returned by octop's
@@ -31,7 +32,7 @@ export interface SkillSpec {
   /** Source of the skill. */
   kind: "workspace" | "builtin" | "package";
   emoji?: string;
-  /** Persisted SkillHub marketplace icon. */
+  /** Custom icon URL or bundled skill icon. */
   iconUrl?: string;
   /** ``metadata.octop.label`` when the API keeps the localized map. */
   label?:
@@ -89,7 +90,7 @@ const toSpec = (row: ServerSummary): SkillSpec => ({
       ? "package"
       : "workspace",
   emoji: row.emoji,
-  iconUrl: row.icon_url,
+  iconUrl: resolveSkillIconUrl(row),
   label: row.label,
   displayName: row.display_name,
 });

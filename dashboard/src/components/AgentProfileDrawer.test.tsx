@@ -1,8 +1,15 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import {
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  within,
+} from "@testing-library/react";
 import { I18nextProvider } from "react-i18next";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import i18n from "../i18n";
 import type { OctopAgent } from "../context/AgentContext";
+import noteStationIcon from "../assets/synology-skills/notes.png";
 
 vi.mock("../api/request", () => ({
   request: vi.fn(async (path: string) => {
@@ -22,6 +29,12 @@ vi.mock("../api/request", () => ({
           kind: "workspace",
           icon_url: "https://cdn.example/skill.png",
           enabled: false,
+        },
+        {
+          slug: "synology-notes",
+          name: "群晖笔记",
+          kind: "workspace",
+          enabled: true,
         },
       ];
     }
@@ -172,6 +185,10 @@ describe("AgentProfileDrawer sections", () => {
 
     const hubIcon = screen.getByRole("img", { name: "Hub skill" });
     expect(hubIcon).toHaveAttribute("src", "https://cdn.example/skill.png");
+    expect(screen.getByRole("img", { name: "群晖笔记" })).toHaveAttribute(
+      "src",
+      noteStationIcon,
+    );
   });
 
   it("puts skill status and subagent id on the title row above the description", async () => {
@@ -182,12 +199,13 @@ describe("AgentProfileDrawer sections", () => {
     );
 
     const skillTitle = await screen.findByText("Demo skill");
-    const skillStatus = screen.getByText("common.enabled");
     const skillDesc = screen.getByText("A demo skill");
     const skillIcon = screen.getByText("🎯");
     const skillHeader = skillTitle.parentElement;
     expect(skillHeader).toContainElement(skillIcon);
-    expect(skillHeader).toContainElement(skillStatus);
+    expect(
+      within(skillHeader!).getByText("common.enabled"),
+    ).toBeInTheDocument();
     expect(skillHeader).not.toContainElement(skillDesc);
     expect(skillHeader?.nextElementSibling).toBe(skillDesc);
 

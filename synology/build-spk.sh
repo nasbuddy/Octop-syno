@@ -75,7 +75,7 @@ bash desktop/portable/bootstrap-runtime.sh "$PORTABLE"
 source desktop/portable/_common.sh
 UPSTREAM_VERSION="$(octop_version)"
 # Increase for every published SPK, including prereleases and final releases.
-SPK_BUILD=0013
+SPK_BUILD=0015
 SPK_METADATA="$(spk_version_metadata "$UPSTREAM_VERSION" "$SPK_BUILD")"
 read -r VERSION BETA <<<"$SPK_METADATA"
 STAGE=$(mktemp -d "$BUILD/spk.XXXXXX")

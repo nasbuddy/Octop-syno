@@ -2,7 +2,7 @@
   "synology": {
     "session_unavailable": "The DSM session is unavailable. Sign in to DSM and reopen Octop.",
     "operation_failed": "The NAS operation failed. Check the session, application permissions, arguments and task state. Writes are not retried automatically.",
-    "connector_name": "Local Synology NAS",
+    "connector_name": "Synology NAS",
     "packages": {
       "catalog": "List the configured package catalog and versions, optionally using third-party sources",
       "install_settings": "Read installation settings and available target volumes",

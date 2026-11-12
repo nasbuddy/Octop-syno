@@ -121,18 +121,25 @@ class NativeSynologyService:
         """Create one private connector and expert once, retaining later user edits."""
         key = f"synology.defaults.{user.id}"
         async with self._provision_lock:
+            repo = self.services.repos.connector_repo
+            instance = repo.get_by_user_kind(user.id, KIND)
+            display_name = tr("synology.connector_name", user.locale)
+            if (
+                instance is not None
+                and instance.display_name in {"本机群晖 NAS", "Local Synology NAS"}
+                and not repo.name_exists(user.id, display_name)
+            ):
+                repo.update_metadata(instance.instance_id, display_name=display_name)
             if self.services.settings_repo.get(key) == "1":
                 return
             await self._session(user.id)
-            repo = self.services.repos.connector_repo
-            instance = repo.get_by_user_kind(user.id, KIND)
             if instance is None:
                 instance_id = new_ulid()
                 repo.create(
                     instance_id=instance_id,
                     user_id=user.id,
                     kind=KIND,
-                    display_name=tr("synology.connector_name", user.locale),
+                    display_name=display_name,
                     mcp_server_name=mcp_server_name(KIND, instance_id),
                     shared=False,
                 )

@@ -2,7 +2,7 @@
   "synology": {
     "session_unavailable": "群晖会话不可用，请在 DSM 中重新登录并打开 Octop。",
     "operation_failed": "群晖操作失败，请检查会话、应用权限、参数及任务状态；写操作不会自动重试。",
-    "connector_name": "本机群晖 NAS",
+    "connector_name": "群辉NAS",
     "packages": {
       "catalog": "查询当前套件源目录与可用版本，可选择第三方源",
       "install_settings": "查询安装设置和可用目标卷",
